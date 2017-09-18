@@ -8,15 +8,22 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
 class MapVC: UIViewController {
     
     //  MARK: Outlets
     @IBOutlet weak var mapView: MKMapView!
+    
+    //  MARK: Variables
+    var locationManager = CLLocationManager()
+    let authorizationStatus = CLLocationManager.authorizationStatus()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        locationManager.delegate = self
+        configureLocationServices()
     }
     
     @IBAction func centerMapButtonPressed(_ sender: UIButton) {
@@ -27,3 +34,28 @@ class MapVC: UIViewController {
 extension MapVC: MKMapViewDelegate {
     
 }
+
+extension MapVC: CLLocationManagerDelegate {
+    
+    func configureLocationServices() {
+        if authorizationStatus == .notDetermined {
+            locationManager.requestAlwaysAuthorization()
+        } else {
+            return
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
