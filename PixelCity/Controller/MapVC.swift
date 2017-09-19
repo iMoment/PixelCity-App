@@ -26,6 +26,9 @@ class MapVC: UIViewController {
     
     var activitySpinner: UIActivityIndicatorView?
     var progressLabel: UILabel?
+    
+    var flowLayout = UICollectionViewFlowLayout()
+    var photosCollectionView: UICollectionView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +36,14 @@ class MapVC: UIViewController {
         locationManager.delegate = self
         configureLocationServices()
         addDoubleTap()
+        
+        photosCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: flowLayout)
+        photosCollectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: "photoCell")
+        photosCollectionView?.delegate = self
+        photosCollectionView?.dataSource = self
+        photosCollectionView?.backgroundColor = #colorLiteral(red: 0.2745098174, green: 0.4862745106, blue: 0.1411764771, alpha: 1)
+        
+        pullUpView.addSubview(photosCollectionView!)
     }
     
     func addDoubleTap() {
@@ -68,7 +79,28 @@ class MapVC: UIViewController {
         activitySpinner?.activityIndicatorViewStyle = .whiteLarge
         activitySpinner?.color = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
         activitySpinner?.startAnimating()
-        pullUpView.addSubview(activitySpinner!)
+        photosCollectionView?.addSubview(activitySpinner!)
+    }
+    
+    func removeSpinner() {
+        if activitySpinner != nil {
+            activitySpinner?.removeFromSuperview()
+        }
+    }
+    
+    func addProgressLabel() {
+        progressLabel = UILabel()
+        progressLabel?.frame = CGRect(x: (screenSize.width / 2) - 120, y: 175, width: 240, height: 40)
+        progressLabel?.font = UIFont(name: "Avenir Next", size: 18)
+        progressLabel?.textColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        progressLabel?.textAlignment = .center
+        photosCollectionView?.addSubview(progressLabel!)
+    }
+    
+    func removeProgressLabel() {
+        if progressLabel != nil {
+            progressLabel?.removeFromSuperview()
+        }
     }
     
     @IBAction func centerMapButtonPressed(_ sender: UIButton) {
@@ -100,9 +132,12 @@ extension MapVC: MKMapViewDelegate {
     
     @objc func dropPin(_ gesture: UITapGestureRecognizer) {
         self.removePin()
+        self.removeSpinner()
+        self.removeProgressLabel()
         self.animateViewUp()
         self.addSwipe()
         self.addSpinner()
+        self.addProgressLabel()
         
         let touchPoint = gesture.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
@@ -140,8 +175,29 @@ extension MapVC: UIGestureRecognizerDelegate {
     
 }
 
+extension MapVC: UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        //  TODO: number of items in Photo Array
+        return 4
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCell {
+            return cell
+        }
+        return UICollectionViewCell()
+    }
+}
 
-
+extension MapVC: UICollectionViewDelegate {
+    
+}
 
 
 
