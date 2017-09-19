@@ -252,7 +252,7 @@ extension MapVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCell else { return PhotoCell() }
         let imageFromIndex = imageArray[indexPath.item]
         let imageView = UIImageView(image: imageFromIndex)
         cell.addSubview(imageView)
@@ -262,6 +262,11 @@ extension MapVC: UICollectionViewDataSource {
 
 extension MapVC: UICollectionViewDelegate {
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let popVC = storyboard?.instantiateViewController(withIdentifier: "PopVC") as? PopVC else { return }
+        popVC.initData(forImage: imageArray[indexPath.item])
+        present(popVC, animated: true, completion: nil)
+    }
 }
 
 
