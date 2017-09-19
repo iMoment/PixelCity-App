@@ -21,6 +21,11 @@ class MapVC: UIViewController {
     var locationManager = CLLocationManager()
     let authorizationStatus = CLLocationManager.authorizationStatus()
     let regionRadius: Double = 1000
+    
+    let screenSize = UIScreen.main.bounds
+    
+    var activitySpinner: UIActivityIndicatorView?
+    var progressLabel: UILabel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +62,15 @@ class MapVC: UIViewController {
         }
     }
     
+    func addSpinner() {
+        activitySpinner = UIActivityIndicatorView()
+        activitySpinner?.center = CGPoint(x: (screenSize.width / 2) - ((activitySpinner?.frame.width)! / 2), y: 150)
+        activitySpinner?.activityIndicatorViewStyle = .whiteLarge
+        activitySpinner?.color = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        activitySpinner?.startAnimating()
+        pullUpView.addSubview(activitySpinner!)
+    }
+    
     @IBAction func centerMapButtonPressed(_ sender: UIButton) {
         if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
             centerMapOnUserLocation()
@@ -88,6 +102,7 @@ extension MapVC: MKMapViewDelegate {
         self.removePin()
         self.animateViewUp()
         self.addSwipe()
+        self.addSpinner()
         
         let touchPoint = gesture.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
