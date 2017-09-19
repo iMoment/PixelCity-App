@@ -129,7 +129,6 @@ extension MapVC: MKMapViewDelegate {
         mapView.setRegion(coordinateRegion, animated: true)
     }
     
-    
     @objc func dropPin(_ gesture: UITapGestureRecognizer) {
         self.removePin()
         self.removeSpinner()
