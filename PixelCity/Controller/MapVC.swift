@@ -42,11 +42,17 @@ class MapVC: UIViewController {
         configureLocationServices()
         addDoubleTap()
         
+        if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
+            centerMapOnUserLocation()
+        }
+        
         photosCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: flowLayout)
         photosCollectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: "photoCell")
         photosCollectionView?.delegate = self
         photosCollectionView?.dataSource = self
         photosCollectionView?.backgroundColor = .white
+        
+        registerForPreviewing(with: self, sourceView: photosCollectionView!)
         
         pullUpView.addSubview(photosCollectionView!)
     }
@@ -110,9 +116,9 @@ class MapVC: UIViewController {
     }
     
     @IBAction func centerMapButtonPressed(_ sender: UIButton) {
-        if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
-            centerMapOnUserLocation()
-        }
+//        if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
+//            centerMapOnUserLocation()
+//        }
         print("Hello World.")
     }
 }
@@ -269,7 +275,22 @@ extension MapVC: UICollectionViewDelegate {
     }
 }
 
-
+extension MapVC: UIViewControllerPreviewingDelegate {
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let indexPath = photosCollectionView?.indexPathForItem(at: location), let cell = photosCollectionView?.cellForItem(at: indexPath) else { return nil }
+        guard let popVC = storyboard?.instantiateViewController(withIdentifier: "PopVC") as? PopVC else { return nil }
+        
+        popVC.initData(forImage: imageArray[indexPath.item])
+        
+        previewingContext.sourceRect = cell.contentView.frame
+        
+        return popVC
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
+    }
+}
 
 
 
