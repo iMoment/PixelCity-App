@@ -116,9 +116,9 @@ class MapVC: UIViewController {
     }
     
     @IBAction func centerMapButtonPressed(_ sender: UIButton) {
-//        if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
-//            centerMapOnUserLocation()
-//        }
+        if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
+            centerMapOnUserLocation()
+        }
         print("Hello World.")
     }
 }
