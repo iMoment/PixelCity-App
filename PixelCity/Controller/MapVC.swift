@@ -9,6 +9,8 @@
 import UIKit
 import MapKit
 import CoreLocation
+import Alamofire
+import AlamofireImage
 
 class MapVC: UIViewController {
     
@@ -29,6 +31,8 @@ class MapVC: UIViewController {
     
     var flowLayout = UICollectionViewFlowLayout()
     var photosCollectionView: UICollectionView?
+    
+    var imageUrlArray = [String]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -146,11 +150,40 @@ extension MapVC: MKMapViewDelegate {
         
         let coordinateRegion = MKCoordinateRegionMakeWithDistance(touchCoordinate, regionRadius * 2.0, regionRadius * 2.0)
         mapView.setRegion(coordinateRegion, animated: true)
+        
+        self.retrieveUrls(forAnnotation: annotation) { (success) in
+            if success {
+                
+            }
+        }
     }
     
     func removePin() {
         for annotation in mapView.annotations {
             mapView.removeAnnotation(annotation)
+        }
+    }
+    
+    func retrieveUrls(forAnnotation annotation: DroppablePin, handler: @escaping CompletionHandler) {
+        imageUrlArray.removeAll(keepingCapacity: false)
+        let url = flickrURL(forApiKey: apiKey, withAnnotation: annotation, andNumberOfPhotos: 40)
+        
+        Alamofire.request(url).responseJSON { (response) in
+            
+            if response.result.error == nil {
+                guard let json = response.result.value as? [String: AnyObject] else { return }
+                let photosDictionary = json["photos"] as! [String: AnyObject]
+                let photosArray = photosDictionary["photo"] as! [[String: AnyObject]]
+                for photo in photosArray {
+                    let postUrl = "https://farm\(photo["farm"]!).staticflickr.com/\(photo["server"]!)/\(photo["id"]!)_\(photo["secret"]!)_h_d.jpg"
+                    self.imageUrlArray.append(postUrl)
+                    
+                }
+                handler(true)
+            } else {
+                handler(false)
+                debugPrint(response.result.error as Any)
+            }
         }
     }
 }
